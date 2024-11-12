@@ -80,7 +80,7 @@
                     console.log("Logged in as:", user.email);
                     localStorage.setItem('email', user.email);
                     localStorage.setItem('id', user.uid);
-                    window.location.replace('auth/louder.html');
+                    window.location.replace('louder.html');
                 })
                 .catch((error) => {
                     loginError.textContent = "Incorrect password or email";
@@ -101,7 +101,7 @@
                     localStorage.setItem('email', user.email);
                     localStorage.setItem('id', user.uid);
                  
-                    window.location.replace('auth/enterName.html');
+                    window.location.replace('enterName.html');
                 })
                 .catch((error) => {
                     registerError.textContent = "Invalid Email";
