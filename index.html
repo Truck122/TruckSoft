@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truck Tracker - Auth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body style="background-image: url('pexels-quintingellar-2199293.jpg');" >
+    <h1 style="margin-left: 100px;margin-top: 50px;font-size: 60px;color: red;text-shadow: 0 0 10px #000;font-style: italic;text-decoration: line-through;" >TruckSoft</h1>
+    <div style="background-color: rgba(0, 0, 0,0.3);position: fixed;width: 100%;height: 100vh;top: 0;left: 0;" class="flex items-center justify-center min-h-screen" >
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md text-white">
+            <div class="flex justify-between mb-6">
+                <button id="login-btn" class="header-btn text-lg px-4 py-2 font-semibold text-red-400 focus:outline-none transition-colors duration-300 active">Login</button>
+                <button id="register-btn" class="header-btn text-lg px-4 py-2 font-semibold text-gray-500 focus:outline-none transition-colors duration-300">Register</button>
+            </div>
+        
+            <!-- Login Form -->
+            <div id="login-form" class="form-section active space-y-4">
+                <h2 class="text-2xl font-bold">Login</h2>
+                <input type="email" id="email" placeholder="Email" required class="w-full p-3 rounded-lg bg-gray-700 border-none focus:outline-none focus:ring-2 focus:ring-red-400">
+                <input type="password" id="password" placeholder="Password" required class="w-full p-3 rounded-lg bg-gray-700 border-none focus:outline-none focus:ring-2 focus:ring-red-400">
+                <button type="button" onclick="login()" class="w-full py-3 rounded-lg bg-red-500 hover:bg-red-600 transition-colors duration-300 font-semibold">Login</button>
+                <p id="login-error" ></p>
+            </div>
+        
+            <!-- Register Form -->
+            <div id="register-form" class="form-section hidden space-y-4">
+                <h2 class="text-2xl font-bold">Register</h2>
+                <input type="email" id="register-email" placeholder="Email" required class="w-full p-3 rounded-lg bg-gray-700 border-none focus:outline-none focus:ring-2 focus:ring-red-400">
+                <input type="password" id="register-password" placeholder="Password" required class="w-full p-3 rounded-lg bg-gray-700 border-none focus:outline-none focus:ring-2 focus:ring-red-400">
+                <button type="button" onclick="register()" class="w-full py-3 rounded-lg bg-red-500 hover:bg-red-600 transition-colors duration-300 font-semibold">Register</button>
+                <p id="register-error" ></p>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script type="module">
+        // Import Firebase SDK functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCju8STdc_Z0_NfiFflN2zDaFySlLQJW-8",
+            authDomain: "trucksoft-cd8d1.firebaseapp.com",
+            projectId: "trucksoft-cd8d1",
+            storageBucket: "trucksoft-cd8d1.firebasestorage.app",
+            messagingSenderId: "1090154589935",
+            appId: "1:1090154589935:web:b1ef6f255356a407e0751a"
+        };
+    
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+    
+        // Toggle between login and register forms
+        document.getElementById('login-btn').addEventListener('click', () => {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+        });
+    
+        document.getElementById('register-btn').addEventListener('click', () => {
+            document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('login-form').classList.add('hidden');
+        });
+    
+        // Login function
+        window.login = function() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const loginError = document.getElementById("login-error");
+    
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Successfully signed in
+                    const user = userCredential.user;
+                    console.log("Logged in as:", user.email);
+                    localStorage.setItem('email', user.email);
+                    localStorage.setItem('id', user.uid);
+                    window.location.replace('auth/louder.html');
+                })
+                .catch((error) => {
+                    loginError.textContent = "Incorrect password or email";
+                });
+        };
+    
+        // Register function
+        window.register = function() {
+            const email = document.getElementById("register-email").value;
+            const password = document.getElementById("register-password").value;
+            const registerError = document.getElementById("register-error");
+    
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Successfully registered
+                    const user = userCredential.user;
+                    console.log("Registered as:", user.email);
+                    localStorage.setItem('email', user.email);
+                    localStorage.setItem('id', user.uid);
+                 
+                    window.location.replace('auth/enterName.html');
+                })
+                .catch((error) => {
+                    registerError.textContent = "Invalid Email";
+                });
+        };
+    </script>
+
+</body>
+</html>
