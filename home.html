@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruckSoft Почетна</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f0f5;
+        }
+        .circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #cc4c4c;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: auto;
+        }
+        .stat-title {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body style="background-color: #eee;user-select: none;" >
+    <div style="position: fixed;z-index: 9999;top: 0;left: 0;right: 0;bottom: 0;background-color: darkred;" id="louder">
+        <h1 style="text-align: center;margin-top: 250px;color: #fff;font-size: 75px;" >СЕ ВЧИТУВА</h1>
+    </div>
+    <div style="position: fixed;top: 10px;left: 10px;" >
+        <label for="monthInput">За месец</label>
+        <br>
+        <input onchange="calculateMonthlyTotals()" type="month" id="monthInput"  >
+        
+        <button class="btn btn-danger" onclick="logOut()" >Одјави се</button>
+    </div>
+
+    <div class="container mt-5 text-center">
+        <h1 style="font-size: 50px;text-decoration: line-through;font-style: italic;font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;" >TruckSoft</h1>
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="circle" id="fuelSpent">0</div>
+                <p class="stat-title">Потрошено гориво (L)</p>
+            </div>
+            <div class="col-md-3">
+                <div class="circle" id="moneySpent">0</div>
+                <p class="stat-title">Потрошени пари ($)</p>
+            </div>
+            <div class="col-md-3">
+                <div class="circle" id="kmPassed">0</div>
+                <p class="stat-title">Поминати KM</p>
+            </div>
+            <div class="col-md-3">
+                <div class="circle" id="timeSpent">0</div>
+                <p class="stat-title">Поминато време (Часови)</p>
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <button class="btn btn-primary mb-3" onclick="openInfoModal()">Мои информации</button>
+            <button class="btn btn-secondary mb-3" onclick="openFuelModal()">Внеси гориво</button>
+            <button class="btn btn-secondary mb-3" onclick="openDriveModal()">Внеси километри</button>
+            <button class="btn btn-secondary mb-3" onclick="openDriveModal()">Внеси километри</button>
+            <button class="btn btn-secondary mb-3" onclick="openfreeDayModal()">Внеси слободен ден</button>
+            <button class="btn btn-success mb-3" onclick="printReport()">Принтај извештај</button>
+        </div>
+    </div>
+
+    <!-- My Info Modal -->
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Мои информации</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="infoForm">
+                        <input type="text" id="name" class="form-control mb-3" placeholder="Име">
+                        <input type="text" id="lastName" class="form-control mb-3" placeholder="Презиме">
+                        <input type="text" style="text-transform: uppercase;" id="registration" class="form-control mb-3" placeholder="Регистрација">
+                        <input type="text" id="model" class="form-control mb-3" placeholder="Модел на камион">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="saveUserData()">Зачувај промени</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+ <!-- Drive Modal -->
+ <div class="modal fade" id="driveModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Внеси километри и време</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="infoForm">
+                    <input type="number"onchange="updateKm()" id="startKm" class="form-control mb-3" placeholder="Почетна Километража">
+                    <input type="number" onchange="updateKm()" id="endKm" class="form-control mb-3" placeholder="Крајна километража">
+                    <label for="startTime">Почеток</label>
+                    <input type="time" onchange="updateH()" id="startTime" class="form-control mb-3">
+                    <label for="endTime">Крај</label>
+                    <input type="time" onchange="updateH()" id="endTime" class="form-control mb-3">
+                    <label for="date">Датум</label>
+                    <input type="date" id="dateInp" placeholder="dd-mm-yyyy" class="form-control mb-3" >
+                 
+                </form>
+                <h6>
+                    Вкупна километража: <span id="totalKm" >0</span>km
+                </h6>
+                <h6>
+                    Вкупно време: <span id="totalH" >0</span>h
+                </h6>
+                <p id="err2" ></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveDriveData()">Зачувај</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+ <!-- Fuel Modal -->
+ <div class="modal fade" id="fuelModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Внеси гориво и пари</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="infoForm">
+                    <input type="number" id="fuel" class="form-control mb-3" placeholder="Гориво во литри">
+                    <input type="number"  id="money" class="form-control mb-3" placeholder="Цена на точење">
+                    <input type="date"  id="troskoviDate" class="form-control mb-3" >
+                </form>
+                <p id="err3" ></p>
+       
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveFuelData()">Зачувај</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+ <!-- Free Day Modal -->
+ <div class="modal fade" id="freeDay" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Внеси слободен ден</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="infoForm">
+                    
+                   
+                    <input type="date"  id="freeDayInp" class="form-control mb-3" >
+                </form>
+                <p id="err4" ></p>
+       
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveFreeDay()">Зачувај</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getDatabase, ref, get,set,push, update,onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCju8STdc_Z0_NfiFflN2zDaFySlLQJW-8",
+    authDomain: "trucksoft-cd8d1.firebaseapp.com",
+    databaseURL: "https://trucksoft-cd8d1-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "trucksoft-cd8d1",
+    storageBucket: "trucksoft-cd8d1.firebasestorage.app",
+    messagingSenderId: "1090154589935",
+    appId: "1:1090154589935:web:b1ef6f255356a407e0751a"
+         };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        window.openInfoModal = function openInfoModal() {
+            const infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
+            const user = auth.currentUser;
+            if (user) {
+                const userRef = ref(db, `users/${user.uid}`);
+                get(userRef).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        document.getElementById("name").value = data.name || '';
+                        document.getElementById("lastName").value = data.lastName || '';
+                        document.getElementById("registration").value = data.registration || '';
+                        document.getElementById("model").value = data.model || '';
+     
+                    }
+                });
+            }
+            infoModal.show();
+        }
+
+       window.saveUserData = function saveUserData() {
+            const user = auth.currentUser;
+            if (user) {
+                const name = document.getElementById("name").value;
+                const lastName = document.getElementById("lastName").value;
+                const registration = document.getElementById("registration").value;
+                const model = document.getElementById("model").value;
+                update(ref(db, `users/${user.uid}`), { name, lastName, registration, model });
+            }
+        }
+
+        window.openFuelModal = function openFuelModal()
+        {
+            let modal = new bootstrap.Modal(document.getElementById('fuelModal'));
+            modal.show()
+        }
+
+        window.openDriveModal = function openFuelModal()
+        {
+            let modal = new bootstrap.Modal(document.getElementById('driveModal'));
+            modal.show()
+        }
+
+        window.openfreeDayModal = function openfreeDayModal()
+        {
+            let modal = new bootstrap.Modal(document.getElementById('freeDay'));
+            modal.show()
+        }
+
+        window.saveDriveData = function saveDriveData() {
+            const user = auth.currentUser;
+const startKm = document.getElementById("startKm").value;
+const endKm = document.getElementById("endKm").value;
+const startTime = document.getElementById("startTime").value;
+const endTime = document.getElementById("endTime").value;
+const totalKm = document.getElementById("totalKm").innerText;
+const totalH = document.getElementById("totalH").innerText;
+const date = document.getElementById("dateInp").value;
+
+
+if (startKm === "" || endKm === "" || startTime === "" || endTime === "" || date === "") {
+    document.getElementById('err2').innerHTML = 'Ве молиме пополнете ги сите полиња';
+} else {
+    if (user) {
+        // Generate a unique ID using push
+        const newEntryRef = push(ref(db, `users/${user.uid}/put`));
+
+        // Set the data under this unique ID
+        set(newEntryRef, {
+            startKm: startKm,
+            endKm: endKm,
+            startTime: startTime,
+            endTime: endTime,
+            totalTime: totalH,
+            totalKm: totalKm,
+            date: date,
+        
+        }).then(() => {
+
+           location.reload()
+        }).catch((error) => {
+            console.error("Error saving data:", error);
+        });
+    }
+}
+
+        };
+
+        window.saveFuelData = function saveFuelData() {
+    const user = auth.currentUser;
+    const fuel = document.getElementById("fuel").value;
+    const money = document.getElementById("money").value;
+    const troskoviDate = document.getElementById("troskoviDate").value;
+
+
+
+if (fuel === "" || money === "" ) {
+    document.getElementById('err3').innerHTML = 'Ве молиме пополнете ги сите полиња';
+} else {
+    if (user) {
+        // Generate a unique ID using push
+        const newEntryRef = push(ref(db, `users/${user.uid}/troskovi`));
+
+        // Set the data under this unique ID
+        set(newEntryRef, {
+            stfuel: fuel,
+            money: money,
+            date: troskoviDate,
+     
+        }).then(() => {
+
+           location.reload()
+        }).catch((error) => {
+            console.error("Error saving data:", error);
+        });
+    }
+}
+
+        };
+
+
+
+// save free day
+
+window.saveFreeDay = function saveFreeDay() {
+    const user = auth.currentUser;
+    const date = document.getElementById("freeDayInp").value;
+
+
+
+
+
+if (date === "") {
+    document.getElementById('err4').innerHTML = 'Ве молиме внесете датум!';
+} else {
+    if (user) {
+        // Generate a unique ID using push
+        const newEntryRef = push(ref(db, `users/${user.uid}/put`));
+
+        // Set the data under this unique ID
+        set(newEntryRef, {
+            startKm: 'free',
+            endKm: 'free',
+            startTime: 'free',
+            endTime: 'free',
+            totalTime: 'free',
+            totalKm: 'free',
+            date: date,
+            opis: 'free',
+     
+        }).then(() => {
+
+           location.reload()
+        }).catch((error) => {
+            console.error("Error saving data:", error);
+        });
+    }
+}
+
+        };
+
+
+
+        //RENDER DATA
+
+       window.calculateMonthlyTotals = function calculateMonthlyTotals() {
+    const user = auth.currentUser;
+    const selectedMonth = document.getElementById("monthInput").value;
+    const selectedYear = selectedMonth.split('-')[0];
+    const selectedMonthNumber = selectedMonth.split('-')[1];
+
+    if (user && selectedMonth) {
+        let totalFuel = 0;
+        let totalMoney = 0;
+        let totalKm = 0;
+        let totalTime = 0;
+
+        // Reference to the fuel data
+        const fuelDataRef = ref(db, `users/${user.uid}/troskovi`);
+        onValue(fuelDataRef, (snapshot) => {
+            const fuelData = snapshot.val();
+            if (fuelData) {
+                for (let id in fuelData) {
+                    const fuelEntry = fuelData[id];
+
+                    // Parse the date from the fuel entry
+                    const entryDate = new Date(fuelEntry.date); // Assuming `fuelEntry.date` is in a valid format
+                    const entryMonth = entryDate.getMonth() + 1; // Months are 0-indexed (0 = January, 11 = December)
+                    const entryYear = entryDate.getFullYear();
+
+                    // Check if the entry is in the selected month
+                    if (entryMonth == selectedMonthNumber && entryYear == selectedYear) {
+                        totalFuel += parseFloat(fuelEntry.stfuel) || 0;
+                        totalMoney += parseFloat(fuelEntry.money) || 0;
+                    }
+                }
+            }
+
+            // Display totals for fuel and money
+            document.getElementById("fuelSpent").innerText = totalFuel.toFixed(2);
+            document.getElementById("moneySpent").innerText = totalMoney.toFixed(2);
+        });
+
+        // Reference to the drive data
+        const driveDataRef = ref(db, `users/${user.uid}/put`);
+        onValue(driveDataRef, (snapshot) => {
+            const driveData = snapshot.val();
+            if (driveData) {
+                for (let id in driveData) {
+                    const driveEntry = driveData[id];
+
+                    // Parse the date from the drive entry
+                    const entryDate = new Date(driveEntry.date); // Assuming `driveEntry.date` is in a valid format
+                    const entryMonth = entryDate.getMonth() + 1;
+                    const entryYear = entryDate.getFullYear();
+
+                    // Check if the entry is in the selected month
+                    if (entryMonth == selectedMonthNumber && entryYear == selectedYear) {
+                        totalKm += parseFloat(driveEntry.totalKm) || 0;
+                        console.log(driveEntry.startKm)
+                        totalTime += parseFloat(driveEntry.totalTime) || 0;
+                    }
+                }
+            }
+
+            // Display totals for km and time
+            document.getElementById("kmPassed").innerText = totalKm.toFixed(2);
+            document.getElementById("timeSpent").innerText = totalTime.toFixed(2);
+        });
+    } else {
+        alert('Please log in and select a month.');
+    }
+}
+
+
+    window.logOut = function logOut()
+    {
+          // Log out the user
+          auth.signOut().then(() => {
+                console.log("User logged out successfully!");
+                // Redirect to login page or homepage after logout
+                window.location.href = "../index.html"; // Adjust the URL as needed
+            }).catch((error) => {
+                console.error("Error logging out:", error);
+            });
+        
+    }
+
+// Attach an event listener to the month input to calculate totals when the month changes
+// document.getElementById("inputMonth").addEventListener("change", calculateMonthlyTotals);
+    setTimeout(()=>{
+        calculateMonthlyTotals()
+        
+    },1000)
+    setTimeout(()=>{
+        document.getElementById("louder").style.display = 'none'
+    },1300)
+
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

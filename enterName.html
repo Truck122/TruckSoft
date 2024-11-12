@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruckSoft</title>
+    <!-- Latest compiled and minified CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            text-align: center;
+            background-color: darkred;
+        }
+        .form {
+            background-color: #fff;
+            display: inline-block;
+            margin-top: 100px;
+            padding: 20px;
+            width: 400px;
+        }
+        .form input {
+            width: 90%;
+            margin: auto;
+            margin-bottom: 15px;
+            display: block;
+            padding: 5px;
+            font-size: 17px;
+            outline: none;
+        }
+        .form button {
+            width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="form">
+        <h4 style="text-transform: uppercase;">Ваши лични податоци</h4>
+        <br>
+        <input type="text" id="firstName" placeholder="Име">
+        <input type="text" id="lastName" placeholder="Презиме">
+        <input type="text" style="text-transform: uppercase;" id="registration" placeholder="Рег. број">
+        <input type="text" id="model" placeholder="Марка на камион">
+        <button class="btn btn-primary" onclick="saveUserData()">Следно</button>
+        <br><br>
+        <p id="err"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCju8STdc_Z0_NfiFflN2zDaFySlLQJW-8",
+            authDomain: "trucksoft-cd8d1.firebaseapp.com",
+            databaseURL: "https://trucksoft-cd8d1-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "trucksoft-cd8d1",
+            storageBucket: "trucksoft-cd8d1.firebasestorage.app",
+            messagingSenderId: "1090154589935",
+            appId: "1:1090154589935:web:b1ef6f255356a407e0751a"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // Expose the function to the global scope
+        window.saveUserData = function saveUserData() {
+            const user = auth.currentUser;
+            const name = document.getElementById("firstName").value;
+            const lastName = document.getElementById("lastName").value;
+            const registration = document.getElementById("registration").value;
+            const model = document.getElementById("model").value;
+
+            if (name === "" || lastName === "" || registration === "" || model === "") {
+                document.getElementById('err').innerHTML = 'Ве молиме пополнете ги сите полиња';
+            } else {
+                if (user) {
+                    set(ref(db, `users/${user.uid}`), {
+                        name: name,
+                        lastName: lastName,
+                        registration: registration,
+                        model: model
+                    }).then(() => {
+                      
+                        window.location.replace("home.html");
+                    }).catch((error) => {
+                        console.error("Error saving data:", error);
+                    });
+                }
+            }
+        };
+    </script>
+</body>
+</html>
